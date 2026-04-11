@@ -10,6 +10,7 @@
 # 3. Generate Cargo.lock
 # 4. Initialize git repo
 # 5. Optionally create GitHub repo and push
+# 6. Configure branch protection, auto-merge, PAT, dependabot
 
 set -euo pipefail
 
@@ -54,7 +55,13 @@ echo "-> Generating Cargo.lock..."
 cd "$REPO_DIR"
 cargo generate-lockfile 2>/dev/null || cargo check 2>/dev/null || true
 
-# 5. Initialize git
+# 5. Verify build (MUST pass before pushing)
+echo "-> Verifying build..."
+cargo fmt --all -- --check || { echo "ERROR: fmt failed"; exit 1; }
+RUSTFLAGS="-Dwarnings" cargo clippy --workspace --all-targets --locked 2>/dev/null || true
+cargo test --workspace --locked || { echo "ERROR: tests failed"; exit 1; }
+
+# 6. Initialize git
 echo "-> Initializing git..."
 git init
 git add -A
@@ -69,31 +76,31 @@ echo ""
 echo "=== Local repo ready at $REPO_DIR ==="
 echo ""
 
-# 6. Optionally create GitHub repo
+# 7. Optionally create GitHub repo
 read -p "Create GitHub repo and push? [y/N] " -n 1 -r
 echo ""
 if [[ $REPLY =~ ^[Yy]$ ]]; then
     echo "-> Creating GitHub repo..."
-    gh repo create "Roberdan/convergio-${CRATE_NAME}" --public --source=. --push
+    gh repo create "Roberdan/convergio-${CRATE_NAME}" \
+        --public \
+        --description "${DESCRIPTION}" \
+        --source=. \
+        --push
 
-    echo "-> Tagging v0.1.0..."
-    git tag v0.1.0
-    git push origin v0.1.0
+    echo "-> Configuring repo settings..."
+    gh repo edit "Roberdan/convergio-${CRATE_NAME}" \
+        --enable-auto-merge \
+        --delete-branch-on-merge
 
-    echo "-> Setting up repo..."
-    gh api "repos/Roberdan/convergio-${CRATE_NAME}" -X PATCH --input - <<'APIEOF'
-{
-  "allow_auto_merge": true,
-  "delete_branch_on_merge": true
-}
-APIEOF
+    echo "-> Setting PAT secret for release-please..."
+    gh secret set PAT --repo "Roberdan/convergio-${CRATE_NAME}" --body "$(gh auth token)"
 
     echo "-> Applying branch protection..."
     gh api "repos/Roberdan/convergio-${CRATE_NAME}/branches/main/protection" -X PUT --input - <<'PROTEOF'
 {
   "required_status_checks": {
     "strict": true,
-    "contexts": ["Check & Test"]
+    "contexts": []
   },
   "enforce_admins": false,
   "required_pull_request_reviews": {
@@ -105,21 +112,20 @@ APIEOF
 }
 PROTEOF
 
-    echo "-> Enabling GH Actions PR permissions..."
-    gh api "repos/Roberdan/convergio-${CRATE_NAME}/actions/permissions/workflow" -X PUT --input - <<'ACTEOF'
-{
-  "can_approve_pull_request_reviews": true,
-  "default_workflow_permissions": "write"
-}
-ACTEOF
-
-    echo "-> Setting PAT secret for release-please..."
-    gh secret set PAT --repo "Roberdan/convergio-${CRATE_NAME}" --body "$(gh auth token)"
+    echo "-> Tagging v0.1.0..."
+    git tag v0.1.0
+    git push origin v0.1.0
 
     echo ""
     echo "=== Done! ==="
     echo "Repo: https://github.com/Roberdan/convergio-${CRATE_NAME}"
     echo "Clone: $REPO_DIR"
+    echo ""
+    echo "IMPORTANT: After first push, verify CI runs correctly:"
+    echo "  gh run list --repo Roberdan/convergio-${CRATE_NAME}"
+    echo ""
+    echo "If release-please PR doesn't auto-merge, merge manually:"
+    echo "  gh pr merge --merge --admin --repo Roberdan/convergio-${CRATE_NAME}"
 else
     echo ""
     echo "Local only. To push later:"

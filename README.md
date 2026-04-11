@@ -25,14 +25,19 @@ graph LR
 
 ## Quality gates
 
-| Gate | Status |
-|------|--------|
-| Zero warnings (`-Dwarnings`) | CI enforced |
-| All tests (unit + integration) | CI enforced |
-| Dependency audit (`cargo audit`) | CI enforced |
-| License policy (`cargo deny`) | CI enforced |
-| Format (`cargo fmt`) | CI enforced |
-| Auto-release | release-please |
+| Gate | Tool | Enforced |
+|------|------|----------|
+| Zero warnings | `RUSTFLAGS="-Dwarnings"` | CI blocks merge |
+| All tests pass | `cargo test --locked` | CI blocks merge |
+| Coverage ≥70% | `cargo tarpaulin --fail-under 70` | CI blocks merge |
+| Dependency audit (CVE) | `cargo audit` | CI blocks merge |
+| License + deps policy | `cargo deny check` | CI blocks merge |
+| Semver compatibility | `cargo semver-checks` | CI blocks merge (PR) |
+| Unused dependencies | `cargo udeps` | CI blocks merge |
+| Conventional commits | PR title lint | CI blocks merge (PR) |
+| Format | `cargo fmt --check` | CI blocks merge |
+| SBOM (CycloneDX) | `cargo cyclonedx` | On release |
+| Auto-release | release-please + PAT | Fully automatic |
 
 ## Usage
 
