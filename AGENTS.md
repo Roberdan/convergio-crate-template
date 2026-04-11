@@ -83,8 +83,8 @@ After making changes, run:
 Do NOT commit — coordinator verifies and commits.
 ```
 
-Use cheaper models (Sonnet/Copilot) for mechanical tasks.
-Use expensive models (Opus) only for architecture and security decisions.
+Default: t3 (Copilot = free Opus via GitHub). NEVER t2 (Sonnet).
+t1 (paid Opus) only for final validation and architecture decisions.
 
 ## Workflow
 

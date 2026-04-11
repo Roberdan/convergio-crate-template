@@ -30,8 +30,8 @@ crates/convergio-CRATE_NAME/src/
 
 ## Delegation
 
-- Mechanical tasks (tests, formatting, file moves): delegate to Sonnet with precise instructions
-- Architecture/security: do yourself (Opus)
+- ALL tasks: delegate to Copilot t3 (free Opus via GitHub). NEVER use Sonnet (t2).
+- Keep for yourself ONLY: final validation and architecture decisions
 - EVERY delegation prompt MUST include: `cargo fmt --all` + `cargo test` as final steps
 
 ## SDK dep

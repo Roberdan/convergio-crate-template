@@ -45,9 +45,9 @@ mv "$REPO_DIR/crates/convergio-CRATE_NAME" "$REPO_DIR/crates/convergio-${CRATE_N
 
 # 3. Replace placeholders in all files
 find "$REPO_DIR" -type f \( -name '*.toml' -o -name '*.rs' -o -name '*.md' -o -name '*.json' -o -name '*.yml' -o -name '*.yaml' \) -exec sed -i '' \
-    -e "s/CRATE_NAME/${CRATE_NAME}/g" \
-    -e "s/CRATE_DESCRIPTION_LONG/${DESCRIPTION}/g" \
-    -e "s/CRATE_DESCRIPTION/${DESCRIPTION}/g" \
+    -e "s|CRATE_NAME|${CRATE_NAME}|g" \
+    -e "s|CRATE_DESCRIPTION_LONG|${DESCRIPTION}|g" \
+    -e "s|CRATE_DESCRIPTION|${DESCRIPTION}|g" \
     {} +
 
 # 4. Generate Cargo.lock
