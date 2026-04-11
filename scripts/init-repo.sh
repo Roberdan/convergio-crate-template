@@ -63,7 +63,7 @@ cargo test --workspace --locked || { echo "ERROR: tests failed"; exit 1; }
 
 # 6. Initialize git
 echo "-> Initializing git..."
-git init
+git init -b main
 git add -A
 git commit -m "feat: initial convergio-${CRATE_NAME} from template
 
