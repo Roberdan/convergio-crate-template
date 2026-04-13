@@ -3,18 +3,18 @@ resolver = "2"
 members = ["crates/convergio-CRATE_NAME"]
 
 [workspace.package]
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 license = "MIT"
 repository = "https://github.com/Roberdan/convergio-CRATE_NAME"
 
 [workspace.dependencies]
 # SDK dependencies
-convergio-types = { git = "https://github.com/Roberdan/convergio-sdk", tag = "v0.1.0" }
+convergio-types = "0.1"
 # Uncomment as needed:
-# convergio-telemetry = { git = "https://github.com/Roberdan/convergio-sdk", tag = "v0.1.0" }
-# convergio-security = { git = "https://github.com/Roberdan/convergio-sdk", tag = "v0.1.0" }
-# convergio-db = { git = "https://github.com/Roberdan/convergio-sdk", tag = "v0.1.0" }
+# convergio-telemetry = "0.1"
+# convergio-security = "0.1"
+# convergio-db = "0.1"
 
 # Common deps — pin same versions as SDK for compatibility
 thiserror = "1"
